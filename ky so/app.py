@@ -25,48 +25,87 @@ files_db = {}
 
 # --------------------- Giao diện gửi ---------------------
 SEND_HTML = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>🔐 Gửi File Ký Số RSA</title>
+  <title>🔐 Ký Số Tập Tin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      margin: 0;
+      font-family: 'Rubik', sans-serif;
+      background: url('https://images.unsplash.com/photo-1593642532973-d31b6557fa68?fit=crop&w=1920&q=80') no-repeat center center fixed;
+      background-size: cover;
       min-height: 100vh;
-      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .card {
-      background-color: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
-      border-radius: 16px;
-      color: #000;
+    .glass-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 550px;
+      color: #fff;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+    .glass-card h2 {
+      font-weight: 600;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    .btn-upload {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+    .status-box {
+      margin-top: 20px;
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 12px;
+      word-break: break-word;
+      font-size: 0.95rem;
+    }
+    input[type="file"] {
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 8px;
+      padding: 10px;
+    }
+    .nav-link {
+      color: #fff;
+      text-align: center;
+      display: block;
+      margin-top: 15px;
+      text-decoration: underline;
     }
     textarea {
-      background-color: #f1f3f5;
-    }
-    .btn-primary {
-      background-color: #5a67d8;
-      border: none;
+      width: 100%;
+      border-radius: 8px;
+      margin-top: 10px;
+      background-color: #f8f9fa;
     }
   </style>
 </head>
 <body>
-<div class="container py-5">
-  <div class="card p-4">
-    <h2 class="text-center text-primary mb-4">📤 Gửi File Kèm Chữ Ký Số</h2>
-    <form id="sendForm">
-      <div class="mb-3">
-        <label class="form-label">📁 Chọn file cần gửi:</label>
-        <input type="file" class="form-control" id="sendFile" required>
-      </div>
-      <div class="d-flex justify-content-between">
-        <button type="submit" class="btn btn-success">🚀 Gửi File</button>
-        <a href="/receive" class="btn btn-outline-dark">🔽 Đến trang Nhận File</a>
-      </div>
-    </form>
-    <div id="sendStatus" class="mt-4"></div>
-  </div>
+
+<div class="glass-card">
+  <h2>📁 Tải Lên & Ký Số Tập Tin</h2>
+  <form id="sendForm">
+    <div class="mb-3">
+      <input type="file" class="form-control" id="sendFile" required />
+    </div>
+    <button type="submit" class="btn btn-light btn-upload">🔐 Gửi & Ký Số</button>
+  </form>
+
+  <div id="sendStatus" class="status-box mt-3"></div>
+  <a href="/receive" class="nav-link">📥 Xem & Kiểm Tra File Đã Gửi</a>
 </div>
 
 <script>
@@ -82,27 +121,23 @@ sendForm.addEventListener('submit', async e => {
   const formData = new FormData();
   formData.append("file", file);
 
-  sendStatus.innerHTML = "<div class='text-info'>⏳ Đang gửi file...</div>";
+  sendStatus.innerHTML = `🕐 Đang xử lý file...`;
 
   const resp = await fetch('/api/upload', { method: 'POST', body: formData });
   const data = await resp.json();
 
   if (resp.ok) {
     sendStatus.innerHTML = `
-      <div class="alert alert-success">
-        ✅ Gửi file thành công!<br>
-        <strong>🆔 Mã File:</strong> ${data.file_id}<br>
-        <strong>✍️ Chữ ký (Base64):</strong>
-        <textarea class="form-control mt-2" rows="3" readonly>${data.signature}</textarea>
-        <button class="btn btn-sm btn-outline-primary mt-2" onclick="navigator.clipboard.writeText('${data.signature}')">📋 Sao chép chữ ký</button>
-        <hr>
-        <strong>🔓 Khóa công khai:</strong>
-        <button class="btn btn-sm btn-outline-secondary" onclick="getPublicKey()">Xem khóa công khai</button>
-        <pre id="pubkeyBox" class="bg-light border rounded p-2 mt-2 text-wrap" style="display:none;"></pre>
-      </div>
+      ✅ Gửi thành công!<br>
+      <strong>🆔 ID:</strong> ${data.file_id}<br>
+      <strong>✍️ Chữ ký:</strong>
+      <textarea rows="3" readonly>${data.signature}</textarea>
+      <button class="btn btn-sm btn-outline-light mt-2" onclick="navigator.clipboard.writeText('${data.signature}')">📋 Sao chép</button><br>
+      <a class="btn btn-sm btn-outline-light mt-2" onclick="getPublicKey()">🔓 Xem khóa công khai</a>
+      <pre id="pubkeyBox" style="display:none;" class="bg-light text-dark p-2 rounded mt-2"></pre>
     `;
   } else {
-    sendStatus.innerHTML = `<div class="alert alert-danger">❌ Lỗi khi gửi file!</div>`;
+    sendStatus.innerHTML = "❌ Lỗi khi gửi file!";
   }
 });
 
@@ -119,49 +154,58 @@ async function getPublicKey() {
 </body>
 </html>
 
+
 """
 # --------------------- Giao diện nhận ---------------------
 RECEIVE_HTML = """
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>📥 Nhận & Kiểm Tra File</title>
+  <title>📥 Nhận File & Kiểm Tra</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
-      background: linear-gradient(135deg, #ff9a8b, #fdd5b1);
-      min-height: 100vh;
+      background-color: #0f2027;
+      background-image: linear-gradient(to right, #2c5364, #203a43, #0f2027);
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 40px;
     }
-    .card {
-      background-color: rgba(255, 255, 255, 0.96);
+    .file-list {
+      max-width: 800px;
+      margin: auto;
+      background: #1a1a1a;
+      padding: 30px;
       border-radius: 16px;
-      box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
-    .btn-outline-success {
-      border-color: #28a745;
-      color: #28a745;
+    .file-item {
+      border-bottom: 1px solid #444;
+      padding: 15px 0;
     }
-    .btn-outline-success:hover {
-      background-color: #28a745;
-      color: white;
+    .file-item:last-child {
+      border-bottom: none;
     }
-    .btn-outline-info:hover {
-      background-color: #17a2b8;
-      color: white;
+    .file-item small {
+      display: block;
+      font-size: 0.85rem;
+      color: #bbb;
+    }
+    .btn-sm {
+      font-size: 0.8rem;
+      margin-top: 5px;
+      border-radius: 6px;
     }
   </style>
 </head>
 <body>
-<div class="container py-5">
-  <div class="card p-4">
-    <h2 class="text-center text-danger mb-4">📥 Nhận & Kiểm Tra File</h2>
-    <div class="d-flex justify-content-end mb-3">
-      <a href="/send" class="btn btn-outline-dark">🔼 Quay lại Gửi File</a>
-    </div>
-    <ul id="fileList" class="list-group mt-3"></ul>
-    <div id="verifyStatus" class="mt-3"></div>
-  </div>
+<div class="file-list">
+  <h2 class="mb-4">📂 Danh Sách File Đã Gửi</h2>
+  <a href="/send" class="btn btn-outline-light mb-4">🔼 Trở Lại Gửi File</a>
+  <div id="fileList"></div>
+  <div id="verifyStatus" class="mt-3"></div>
 </div>
 
 <script>
@@ -172,25 +216,21 @@ async function loadFileList() {
   fileList.innerHTML = '';
 
   if (files.length === 0) {
-    fileList.innerHTML = '<li class="list-group-item text-muted">📂 Chưa có file nào được tải lên.</li>';
+    fileList.innerHTML = '<p class="text-muted">Chưa có file nào được gửi.</p>';
     return;
   }
 
   files.forEach(f => {
-    const li = document.createElement('li');
-    li.className = 'list-group-item d-flex justify-content-between align-items-center';
-    li.innerHTML = `
-      <div>
-        <strong>📎 ${f.filename}</strong><br>
-        <small>🆔 ID: ${f.file_id}</small><br>
-        <small>⏰ ${new Date(f.timestamp * 1000).toLocaleString()}</small>
-      </div>
-      <div>
-        <button class="btn btn-sm btn-outline-success me-2" onclick="downloadFile('${f.file_id}')">⬇️ Tải</button>
-        <button class="btn btn-sm btn-outline-info" onclick="verifyFile('${f.file_id}')">🔍 Kiểm Tra</button>
-      </div>
+    const div = document.createElement('div');
+    div.className = 'file-item';
+    div.innerHTML = `
+      <strong>${f.filename}</strong>
+      <small>🆔 ${f.file_id}</small>
+      <small>⏰ ${new Date(f.timestamp * 1000).toLocaleString()}</small>
+      <button class="btn btn-sm btn-outline-success me-2" onclick="downloadFile('${f.file_id}')">⬇️ Tải</button>
+      <button class="btn btn-sm btn-outline-info" onclick="verifyFile('${f.file_id}')">🔍 Kiểm Tra</button>
     `;
-    fileList.appendChild(li);
+    fileList.appendChild(div);
   });
 }
 
@@ -200,20 +240,19 @@ async function downloadFile(file_id) {
 
 async function verifyFile(file_id) {
   const verifyStatus = document.getElementById('verifyStatus');
-  verifyStatus.innerHTML = "🔄 Đang kiểm tra chữ ký...";
+  verifyStatus.innerHTML = "🕵️‍♂️ Đang xác minh...";
   const resp = await fetch(`/api/verify/${file_id}`);
   const data = await resp.json();
-  if (data.valid) {
-    verifyStatus.innerHTML = '<div class="alert alert-success">✅ Chữ ký hợp lệ. File an toàn.</div>';
-  } else {
-    verifyStatus.innerHTML = '<div class="alert alert-danger">❌ Chữ ký không hợp lệ hoặc file đã bị chỉnh sửa!</div>';
-  }
+  verifyStatus.innerHTML = data.valid
+    ? '<div class="alert alert-success mt-3">✅ Chữ ký hợp lệ!</div>'
+    : '<div class="alert alert-danger mt-3">❌ Chữ ký không hợp lệ!</div>';
 }
 
 loadFileList();
 </script>
 </body>
 </html>
+
 
 """
 
