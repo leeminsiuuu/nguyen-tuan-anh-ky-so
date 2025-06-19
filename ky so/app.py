@@ -24,8 +24,7 @@ public_key = key.publickey()
 files_db = {}
 
 # --------------------- Giao diện gửi ---------------------
-SEND_HTML = """
-<!DOCTYPE html>
+SEND_HTML = """<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
@@ -33,14 +32,22 @@ SEND_HTML = """
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
-      background: linear-gradient(to right, #74ebd5, #acb6e5);
+      background: linear-gradient(135deg, #667eea, #764ba2);
       min-height: 100vh;
+      color: #fff;
     }
     .card {
-      box-shadow: 0 0 20px rgba(0,0,0,0.15);
+      background-color: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+      border-radius: 16px;
+      color: #000;
     }
     textarea {
-      background-color: #f8f9fa;
+      background-color: #f1f3f5;
+    }
+    .btn-primary {
+      background-color: #5a67d8;
+      border: none;
     }
   </style>
 </head>
@@ -111,6 +118,7 @@ async function getPublicKey() {
 </script>
 </body>
 </html>
+
 """
 # --------------------- Giao diện nhận ---------------------
 RECEIVE_HTML = """
@@ -122,11 +130,25 @@ RECEIVE_HTML = """
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
-      background: linear-gradient(to right, #f6d365, #fda085);
+      background: linear-gradient(135deg, #ff9a8b, #fdd5b1);
       min-height: 100vh;
     }
     .card {
-      box-shadow: 0 0 20px rgba(0,0,0,0.15);
+      background-color: rgba(255, 255, 255, 0.96);
+      border-radius: 16px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+    }
+    .btn-outline-success {
+      border-color: #28a745;
+      color: #28a745;
+    }
+    .btn-outline-success:hover {
+      background-color: #28a745;
+      color: white;
+    }
+    .btn-outline-info:hover {
+      background-color: #17a2b8;
+      color: white;
     }
   </style>
 </head>
@@ -192,6 +214,7 @@ loadFileList();
 </script>
 </body>
 </html>
+
 """
 
 # --------------------- Các route Flask ---------------------
